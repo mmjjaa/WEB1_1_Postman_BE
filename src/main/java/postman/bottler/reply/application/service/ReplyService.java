@@ -18,7 +18,6 @@ public class ReplyService {
     private final ReplyFetchService replyFetchService;
     private static final int REDIS_SAVED_REPLY = 6;
 
-    @Transactional(readOnly = true)
     public List<ReplyResponseDTO> findRecentReplyLetters(Long userId) {
         String key = "REPLY:" + userId;
         List<Object> values = redisTemplate.opsForList().range(key, 0, 2);
@@ -28,7 +27,10 @@ public class ReplyService {
             values = redisTemplate.opsForList().range(key, 0, 2);
         }
 
-        assert values != null;
+        if (values == null) {
+            return List.of();
+        }
+
         return values.stream()
                 .map(value -> {
                     String[] parts = value.toString().split(":");
