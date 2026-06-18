@@ -17,10 +17,10 @@ public class ProfileImageDataInitializer implements ApplicationRunner {
     private final ProfileImageJpaRepository profileImageJpaRepository;
 
     private static final List<String> PROFILE_IMAGE_URLS = List.of(
-        "https://img.bottler.store/profile1.svg",
-        "https://img.bottler.store/profile2.svg",
-        "https://img.bottler.store/profile3.svg",
-        "https://img.bottler.store/profile4.svg"
+        "https://web-1-1-postman-fe-eqqo.vercel.app/profile1.svg",
+        "https://web-1-1-postman-fe-eqqo.vercel.app/profile2.svg",
+        "https://web-1-1-postman-fe-eqqo.vercel.app/profile3.svg",
+        "https://web-1-1-postman-fe-eqqo.vercel.app/profile4.svg"
     );
 
     @Override
