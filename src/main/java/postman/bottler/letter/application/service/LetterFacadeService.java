@@ -2,6 +2,7 @@ package postman.bottler.letter.application.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import postman.bottler.keyword.application.service.LetterKeywordService;
@@ -14,6 +15,7 @@ import postman.bottler.letter.application.dto.response.LetterResponseDTO;
 import postman.bottler.letter.domain.Letter;
 import postman.bottler.user.application.service.UserService;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LetterFacadeService {
@@ -45,11 +47,16 @@ public class LetterFacadeService {
 
     @Transactional(readOnly = true)
     public List<LetterRecommendSummaryResponseDTO> findRecommendHeaders(Long userId) {
-        List<Long> letterIds = redisLetterService.fetchActiveRecommendations(userId);
-        if (letterIds == null || letterIds.isEmpty()) {
+        try {
+            List<Long> letterIds = redisLetterService.fetchActiveRecommendations(userId);
+            if (letterIds == null || letterIds.isEmpty()) {
+                return List.of();
+            }
+            List<Letter> letters = letterService.findRecommendedLetters(letterIds);
+            return letters.stream().map(LetterRecommendSummaryResponseDTO::from).toList();
+        } catch (Exception e) {
+            log.warn("추천 편지 조회 실패 (userId={}): {}", userId, e.getMessage());
             return List.of();
         }
-        List<Letter> letters = letterService.findRecommendedLetters(letterIds);
-        return letters.stream().map(LetterRecommendSummaryResponseDTO::from).toList();
     }
 }
