@@ -26,7 +26,7 @@ public class ProfileImageRepositoryImpl implements ProfileImageRepository {
     public String findProfileImage() {
         String profileImageUrl = profileImageJpaRepository.findRandomProfileImage();
         if (profileImageUrl == null) {
-            throw new ProfileImageException("프로필 이미지를 찾을 수 없습니다.");
+            return "https://storage.googleapis.com/bottler-a418d.firebasestorage.app/profile/default.png";
         }
         return profileImageUrl;
     }
