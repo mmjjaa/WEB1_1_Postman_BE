@@ -50,12 +50,33 @@ public class LetterFacadeService {
         try {
             List<Long> letterIds = redisLetterService.fetchActiveRecommendations(userId);
             if (letterIds == null || letterIds.isEmpty()) {
-                return List.of();
+                return findDeveloperLetterFallback();
             }
             List<Letter> letters = letterService.findRecommendedLetters(letterIds);
+            if (letters.isEmpty()) {
+                return findDeveloperLetterFallback();
+            }
             return letters.stream().map(LetterRecommendSummaryResponseDTO::from).toList();
         } catch (Exception e) {
             log.warn("추천 편지 조회 실패 (userId={}): {}", userId, e.getMessage());
+            return findDeveloperLetterFallback();
+        }
+    }
+
+    private List<LetterRecommendSummaryResponseDTO> findDeveloperLetterFallback() {
+        try {
+            List<Long> developerLetterIds = letterService.findIdsByUserId(1L);
+            if (developerLetterIds.isEmpty()) {
+                return List.of();
+            }
+            java.util.ArrayList<Long> shuffled = new java.util.ArrayList<>(developerLetterIds);
+            java.util.Collections.shuffle(shuffled);
+            List<Long> picked = shuffled.subList(0, Math.min(3, shuffled.size()));
+            return letterService.findRecommendedLetters(picked).stream()
+                .map(LetterRecommendSummaryResponseDTO::from)
+                .toList();
+        } catch (Exception e) {
+            log.warn("개발자 편지 fallback 조회 실패: {}", e.getMessage());
             return List.of();
         }
     }
